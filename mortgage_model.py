@@ -136,9 +136,7 @@ class MortgageSim:
         for _ in range(self.sim_years):
             self.step_year()
 
-##        plt.plot(range(self.sim_years*12), self.interest_payments)
-##        plt.plot(range(self.sim_years*12), self.principal_payments)
-        plt.plot(range(self.sim_years), self.loan_amounts[::12], label="mortgage amount")
+        plt.plot(range(self.sim_years), self.loan_amounts[::12], label="loan balance")
         plt.plot(range(self.sim_years), self.investment_balances, label= "investment balance")
         plt.legend(loc="upper left")
         plt.show()
