@@ -23,6 +23,7 @@ class MortgageSim:
         self.time_years = 0
         self.interest_payments = []
         self.principal_payments = []
+        self.monthly_payments = []
         self.loan_amounts = []
         self.investment_balances = []
         self.standard_deductions = []
@@ -49,6 +50,7 @@ class MortgageSim:
         self.time_years = 0
         self.interest_payments = []
         self.principal_payments = []
+        self.monthly_payments = []
         self.loan_amounts = []
         self.investment_balances = []
         self.standard_deductions = []
@@ -107,14 +109,17 @@ class MortgageSim:
 
     def step_month(self):
         if self.time_years < self.mortgage_years:
-            interest_payment = sim.interest_rate/12 * sim.loan_amount
-            principal_payment = sim.monthly_payment - interest_payment
+            interest_payment = self.interest_rate/12 * self.loan_amount
+            principal_payment = self.monthly_payment - interest_payment
+            monthly_payment = self.monthly_payment
             self.loan_amount = self.loan_amount - principal_payment
             self.interest_payments.append(interest_payment)
             self.principal_payments.append(principal_payment)
+            self.monthly_payments.append(monthly_payment)
         else:
             self.interest_payments.append(0)
             self.principal_payments.append(0)
+            self.monthly_payments.append(0)
             
         self.loan_amounts.append(self.loan_amount)
         
@@ -123,7 +128,7 @@ class MortgageSim:
             self.step_month()
 
         annual_mortgage_interest = sum(self.interest_payments[-12:])
-        annual_mortgage_payments = self.monthly_payment * 12
+        annual_mortgage_payments = sum(self.monthly_payments[-12:])
         
         annual_income = self.get_income(self.time_years)
         standard_deduction = self.get_standard_deduction(self.time_years)
