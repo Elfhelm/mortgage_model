@@ -24,6 +24,12 @@ class MortgageSim:
         self.principal_payments = []
         self.loan_amounts = []
         self.investment_balances = []
+        self.standard_deductions = []
+        self.charitable_deductions = []
+        self.salt_deductions = []
+        self.mortgage_interest_deductions = []
+        self.itemized_deductions = []
+        self.deductions = []
         self.initial_tax_brackets = [
             (22000, 0.1),
             (89450, 0.12),
@@ -43,6 +49,12 @@ class MortgageSim:
         self.principal_payments = []
         self.loan_amounts = []
         self.investment_balances = []
+        self.standard_deductions = []
+        self.charitable_deductions = []
+        self.salt_deductions = []
+        self.mortgage_interest_deductions = []
+        self.itemized_deductions = []
+        self.deductions = []
         self.investment_balance = 0
         self.loan_amount = self._INIT_LOAN_AMOUNT
 
@@ -122,8 +134,15 @@ class MortgageSim:
 
         investment_amount = annual_income - self.get_living_expenses(self.time_years) - state_tax - federal_tax - annual_mortgage_payments
         self.investment_balance = self.investment_balance*(1+self.investment_return_rate) + investment_amount
-        self.investment_balances.append(self.investment_balance)
         decimal_investment_balance = '{0:.3E}'.format(decimal.Decimal(self.investment_balance))
+
+        self.standard_deductions.append(standard_deduction)
+        self.charitable_deductions.append(charitable_deduction)
+        self.salt_deductions.append(salt_deduction)
+        self.mortgage_interest_deductions.append(mortgage_interest_deduction)
+        self.itemized_deductions.append(itemized_deduction)
+        self.deductions.append(deduction)
+        self.investment_balances.append(self.investment_balance)
         
         self.time_years += 1
         print(self.time_years, self.loan_amount, deduction, investment_amount, decimal_investment_balance)
@@ -138,6 +157,14 @@ class MortgageSim:
 
         plt.plot(range(self.sim_years), self.loan_amounts[::12], label="loan balance")
         plt.plot(range(self.sim_years), self.investment_balances, label= "investment balance")
+        plt.legend(loc="upper left")
+        plt.show()
+
+        plt.plot(range(self.sim_years), self.standard_deductions, label="standard deduction")
+        plt.plot(range(self.sim_years), self.charitable_deductions, label= "charitable deduction")
+        plt.plot(range(self.sim_years), self.salt_deductions, label= "SALT deduction")
+        plt.plot(range(self.sim_years), self.mortgage_interest_deductions, label= "mortgage interest deduction")
+        plt.plot(range(self.sim_years), self.itemized_deductions, label= "itemized deduction")
         plt.legend(loc="upper left")
         plt.show()
 
