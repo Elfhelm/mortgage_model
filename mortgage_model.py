@@ -68,10 +68,11 @@ class MortgageSim:
         # standard deduction is assumed to increase at inflation rate
         return self.initial_standard_deduction * (1+self.inflation_rate)**year
 
-    def get_salt_deduction(self, income):
+    def get_salt_deduction(self, income, year):
         # state and local tax (SALT) deduction
-        # capped at $10k/year
-        return min(10e3, self.get_state_tax(income))
+        # currently capped at $10k/year
+        salt_cap = 10e3 * (1+self.inflation_rate)**year
+        return min(salt_cap, self.get_state_tax(income))
 
     def get_mortgage_interest_deduction(self, mortgage_balance, annual_mortgage_interest):
         return min(750e3, mortgage_balance)/mortgage_balance * annual_mortgage_interest
@@ -124,7 +125,7 @@ class MortgageSim:
         standard_deduction = self.get_standard_deduction(self.time_years)
 
         charitable_deduction = annual_income * self.charitable_contribution_percent
-        salt_deduction = self.get_salt_deduction(annual_income)
+        salt_deduction = self.get_salt_deduction(annual_income, self.time_years)
         mortgage_interest_deduction = self.get_mortgage_interest_deduction(self.loan_amount, annual_mortgage_interest)
         itemized_deduction = charitable_deduction + salt_deduction + mortgage_interest_deduction
 
