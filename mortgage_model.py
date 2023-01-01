@@ -2,6 +2,7 @@ import numpy as np
 import decimal
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
+import csv
 
 @dataclass
 class MortgageSim:
@@ -30,6 +31,7 @@ class MortgageSim:
         self.mortgage_interest_deductions = []
         self.itemized_deductions = []
         self.deductions = []
+        self.csv_rows = []
         self.initial_tax_brackets = [
             (22000, 0.1),
             (89450, 0.12),
@@ -55,6 +57,7 @@ class MortgageSim:
         self.mortgage_interest_deductions = []
         self.itemized_deductions = []
         self.deductions = []
+        self.csv_rows = []
         self.investment_balance = 0
         self.loan_amount = self._INIT_LOAN_AMOUNT
 
@@ -84,6 +87,7 @@ class MortgageSim:
         return current_tax_brackets
 
     def get_state_tax(self, income):
+        # IL state tax is a flat rate with some income exempted
         exemptions = 2425*2
         return (income-exemptions) * 0.0495
 
@@ -132,8 +136,9 @@ class MortgageSim:
         deduction = max(standard_deduction, itemized_deduction)
         state_tax = self.get_state_tax(annual_income)
         federal_tax = self.get_federal_tax(annual_income - deduction, self.time_years)
+        living_expenses = self.get_living_expenses(self.time_years)
 
-        investment_amount = annual_income - self.get_living_expenses(self.time_years) - state_tax - federal_tax - annual_mortgage_payments
+        investment_amount = annual_income - living_expenses - state_tax - federal_tax - annual_mortgage_payments
         self.investment_balance = self.investment_balance*(1+self.investment_return_rate) + investment_amount
         decimal_investment_balance = '{0:.3E}'.format(decimal.Decimal(self.investment_balance))
 
@@ -144,6 +149,23 @@ class MortgageSim:
         self.itemized_deductions.append(itemized_deduction)
         self.deductions.append(deduction)
         self.investment_balances.append(self.investment_balance)
+
+        self.csv_rows.append({
+            'TimeYears': self.time_years,
+            'LoanBalance': self.loan_amount,
+            'Income': annual_income, 
+            'AnnualTotalMortgagePayments': annual_mortgage_payments, 
+            'LivingExpenses': living_expenses, 
+            'StateTax': state_tax, 
+            'StandardDeduction': standard_deduction, 
+            'CharitableDeduction': charitable_deduction, 
+            'SALTDeduction': salt_deduction, 
+            'MortgageInterestDeduction': mortgage_interest_deduction, 
+            'PreferredDeduction': deduction, 
+            'FederalTax': federal_tax, 
+            'InvestmentAmount': investment_amount, 
+            'InvestmentBalance': self.investment_balance
+            })
         
         self.time_years += 1
         print(self.time_years, self.loan_amount, deduction, investment_amount, decimal_investment_balance)
@@ -155,6 +177,27 @@ class MortgageSim:
         
         for _ in range(self.sim_years):
             self.step_year()
+
+        with open(f'mortgage_{self.mortgage_years}_years.csv', 'w', newline='') as csvfile:
+            fieldnames = [
+                'TimeYears',
+                'LoanBalance',
+                'Income',
+                'AnnualTotalMortgagePayments',
+                'LivingExpenses',
+                'StateTax',
+                'StandardDeduction',
+                'CharitableDeduction',
+                'SALTDeduction',
+                'MortgageInterestDeduction',
+                'PreferredDeduction',
+                'FederalTax',
+                'InvestmentAmount',
+                'InvestmentBalance'
+            ]
+            csvwriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            csvwriter.writeheader()
+            csvwriter.writerows(self.csv_rows)
 
         plt.plot(range(self.sim_years), self.loan_amounts[::12], label="loan balance")
         plt.plot(range(self.sim_years), self.investment_balances, label= "investment balance")
