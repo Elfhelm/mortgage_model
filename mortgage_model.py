@@ -183,7 +183,7 @@ class MortgageSim:
         for _ in range(self.sim_years):
             self.step_year()
 
-        with open(f'mortgage_{self.mortgage_years}_years.csv', 'w', newline='') as csvfile:
+        with open(f'mortgage_{self.mortgage_years}_years_{self.investment_return_rate}_arr.csv', 'w', newline='') as csvfile:
             fieldnames = [
                 'TimeYears',
                 'LoanBalance',
@@ -204,18 +204,18 @@ class MortgageSim:
             csvwriter.writeheader()
             csvwriter.writerows(self.csv_rows)
 
-        plt.plot(range(self.sim_years), self.loan_amounts[::12], label="loan balance")
-        plt.plot(range(self.sim_years), self.investment_balances, label= "investment balance")
-        plt.legend(loc="upper left")
-        plt.show()
+        # plt.plot(range(self.sim_years), self.loan_amounts[::12], label="loan balance")
+        # plt.plot(range(self.sim_years), self.investment_balances, label= "investment balance")
+        # plt.legend(loc="upper left")
+        # plt.show()
 
-        plt.plot(range(self.sim_years), self.standard_deductions, label="standard deduction")
-        plt.plot(range(self.sim_years), self.charitable_deductions, label= "charitable deduction")
-        plt.plot(range(self.sim_years), self.salt_deductions, label= "SALT deduction")
-        plt.plot(range(self.sim_years), self.mortgage_interest_deductions, label= "mortgage interest deduction")
-        plt.plot(range(self.sim_years), self.itemized_deductions, label= "itemized deduction")
-        plt.legend(loc="upper left")
-        plt.show()
+        # plt.plot(range(self.sim_years), self.standard_deductions, label="standard deduction")
+        # plt.plot(range(self.sim_years), self.charitable_deductions, label= "charitable deduction")
+        # plt.plot(range(self.sim_years), self.salt_deductions, label= "SALT deduction")
+        # plt.plot(range(self.sim_years), self.mortgage_interest_deductions, label= "mortgage interest deduction")
+        # plt.plot(range(self.sim_years), self.itemized_deductions, label= "itemized deduction")
+        # plt.legend(loc="upper left")
+        # plt.show()
 
 sim = MortgageSim(
     home_price = 1.2e6,
@@ -232,8 +232,9 @@ sim = MortgageSim(
     investment_return_rate = 0.03,
     )
 
-sim.run()
-
-sim.restart()
-sim.mortgage_years = 30
-sim.run()
+for mortgage_length in [15, 30]:
+    for arr in [0.03, 0.05, 0.07]:
+        sim.restart()
+        sim.mortgage_years = mortgage_length
+        sim.investment_return_rate = arr
+        sim.run()
